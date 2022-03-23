@@ -1,0 +1,7 @@
+input:
+  file_name: "../data/eg1"
+
+output:
+  deBoor_file: "log/eg1_output"
+
+
