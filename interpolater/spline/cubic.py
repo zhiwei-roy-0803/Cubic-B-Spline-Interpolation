@@ -1,6 +1,7 @@
 import numpy as np
 from interpolater.spline.basis import basis_func, basis_derivative2
 from interpolater.solver.scipy_wrapper import ScipyWrapper
+from interpolater.solver.tridiagonal import TriDiagonalSolver
 
 
 class CubicBSpline():
@@ -76,7 +77,13 @@ class CubicBSpline():
 
         return [A, b]
 
-    def find_control_points(self):
+    def find_control_points(self, solver_method="tridiagonal"):
+
+        solvers = {
+            "tridiagonal": TriDiagonalSolver.solve,
+            "scipy": ScipyWrapper.solve
+        }
+
         # Step 1: parameterize the curve
         t = self._parameterize()
 
@@ -92,7 +99,7 @@ class CubicBSpline():
         deBoor_points = np.zeros((self.n + 3, self.ndim))
         for dim in range(self.ndim):
             A, b = self._build_linear_system(self.points[:, dim], knots)
-            deBoor_points[:, dim] = ScipyWrapper.solve(A, b)
+            deBoor_points[:, dim] = solvers[solver_method](A, b)
 
         return deBoor_points, knots
 
