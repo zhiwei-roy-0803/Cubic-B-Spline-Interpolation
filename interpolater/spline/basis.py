@@ -17,28 +17,19 @@ def basis_func(T, x):
         "func4": lambda x: (T[4] - x) * (T[4] - x) * (T[4] - x) / (T[4] - T[3]) / (T[4] - T[2]) / (T[4] - T[1])
     }
 
-    if T[0]<= x <= T[1] and (x != T[0] or x != T[1]):
-        try:
-            return func_dict["func1"](x)
-        except ZeroDivisionError:
-            return 0.0
-    elif T[1]<= x <= T[2]:
-        try:
-            return func_dict["func2"](x)
-        except ZeroDivisionError:
-            return 0.0
-    elif T[2]<= x <= T[3] and (x != T[2] or x != T[3]):
-        try:
-            return func_dict["func3"](x)
-        except ZeroDivisionError:
-            return 0.0
-    elif T[3] <= x <= T[4] and (x != T[3] or x != T[4]):
-        try:
-            return func_dict["func4"](x)
-        except ZeroDivisionError:
-            return 0.0
+    if T[0] <= x < T[1]:
+        return func_dict["func1"](x)
+
+    elif T[1] <= x < T[2]:
+        return func_dict["func2"](x)
+
+    elif T[2] <= x < T[3]:
+        return func_dict["func3"](x)
+
+    elif T[3] <= x < T[4]:
+        return func_dict["func4"](x)
     else:
-        return 0
+        raise RuntimeError
 
 def basis_derivative2(T, x):
 
@@ -56,25 +47,16 @@ def basis_derivative2(T, x):
         "func4": lambda x: (T[4] - x) * (T[4] - x) * (T[4] - x) / (T[4] - T[3]) / (T[4] - T[2]) / (T[4] - T[1])
     }
 
-    if T[0] <= x <= T[1] and (x != T[0] or x != T[1]):
-        try:
-            return derivative(func_dict["func1"], x0=x, dx=1e-3, n=2)
-        except ZeroDivisionError:
-            return 0.0
-    elif T[1] <= x <= T[2] and (x != T[1] or x != T[2]):
-        try:
-            return derivative(func_dict["func2"], x0=x, dx=1e-3, n=2)
-        except ZeroDivisionError:
-            return 0.0
-    elif T[2] <= x <= T[3] and (x != T[2] or x != T[3]):
-        try:
-            return derivative(func_dict["func3"], x0=x, dx=1e-3, n=2)
-        except ZeroDivisionError:
-            return 0.0
-    elif T[3] <= x <= T[4] and (x != T[3] or x != T[4]):
-        try:
-            return derivative(func_dict["func4"], x0=x, dx=1e-3, n=2)
-        except ZeroDivisionError:
-            return 0.0
+    if T[0] <= x < T[1]:
+        return derivative(func_dict["func1"], x0=x, dx=1e-3, n=2)
+
+    elif T[1] <= x < T[2]:
+        return derivative(func_dict["func2"], x0=x, dx=1e-3, n=2)
+
+    elif T[2] <= x < T[3]:
+        return derivative(func_dict["func3"], x0=x, dx=1e-3, n=2)
+
+    elif T[3] <= x < T[4]:
+        return derivative(func_dict["func4"], x0=x, dx=1e-3, n=2)
     else:
-        return 0.0
+        raise RuntimeError

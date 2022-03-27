@@ -34,7 +34,7 @@ def visualize():
     plt.legend(["control points", "data points", "interpolation"])
     plt.xlabel("x")
     plt.ylabel("y")
-    plt.show()
+    plt.savefig("{:s}.pdf".format(config["res"]))
 
 if __name__ == "__main__":
     visualize()

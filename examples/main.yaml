@@ -1,7 +1,6 @@
 input:
-  file_name: "../data/eg1"
-
+  file_name: "../data/eg5"
 output:
-  deBoor_file: "log/eg1_output"
+  deBoor_file: "log/eg5_output"
 
 

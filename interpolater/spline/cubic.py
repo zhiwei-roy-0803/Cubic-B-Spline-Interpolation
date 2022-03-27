@@ -12,7 +12,6 @@ class CubicBSpline():
         self.num_points = len(points)
         self.n = self.num_points - 1
 
-
     def _parameterize(self, method="chord"):
         func_dict = {
             "uniform": self._uniform,
@@ -40,13 +39,29 @@ class CubicBSpline():
         t[-1] = 1.0
         return t
 
+    def _get_knots(self, t):
+        t0 = t[0]
+        tn = t[-1]
+        knots = np.zeros(4 + 4 + self.num_points - 2)
+        knots[:4] = [t0-3e-6, t0-2e-6, t0-1e-6, t0]
+        knots[-4:] = [tn, tn+1e-6, tn+2e-6, tn+3e-6]
+        knots[4:-4] = t[1:-1]
+        i = 4
+        while i < len(knots) - 4:
+            j = 1
+            while i + j < len(knots) and knots[i + j] - knots[i] < 1e-6:
+                knots[i + j] = knots[i] + j * 1e-6
+                j += 1
+            i = i + j
+        return knots
 
     def _build_linear_system(self, coordinates, knot):
         A = np.zeros((self.n + 3, self.n + 3))
         b = np.zeros(self.n + 3)
 
         # Step 1: set the first and last diagonal component in matrix A as 1
-        A[0, 0] = A[-1, -1] = 1.0
+        A[0, 0] = basis_func(T=knot[:5], x=0.0)
+        A[-1, -1] = basis_func(T=knot[-5:], x=1.0)
 
         # Step 2: for the i-th input data point except for the first and the last one, eval corresponding cubic basis
         # func (3 terms) and place the eval results into the (i + 1)-th row
@@ -59,16 +74,15 @@ class CubicBSpline():
             A[i, i] = a2
             A[i, i + 1] = a3
 
+
         # Step 3: establish C2 continuity equation for the two boundary points, put the corresponding coefficients in
         # the second the penultimate row
-        t0 = 0.0
-        A[1, 0] = basis_derivative2(T=knot[0:5], x=t0)
-        A[1, 1] = basis_derivative2(T=knot[1:6], x=t0)
-        A[1, 2] = basis_derivative2(T=knot[2:7], x=t0)
-        tn = 1.
-        A[-2, -3] = basis_derivative2(T=knot[self.n:self.n+5], x=tn)
-        A[-2, -2] = basis_derivative2(T=knot[self.n+1:self.n+6], x=tn)
-        A[-2, -1] = basis_derivative2(T=knot[self.n+2:self.n+7], x=tn)
+        A[1, 0] = basis_derivative2(T=knot[0:5], x=knot[3])
+        A[1, 1] = basis_derivative2(T=knot[1:6], x=knot[3])
+        A[1, 2] = basis_derivative2(T=knot[2:7], x=knot[3])
+        A[-2, -3] = basis_derivative2(T=knot[self.n:self.n+5], x=knot[self.n+3])
+        A[-2, -2] = basis_derivative2(T=knot[self.n+1:self.n+6], x=knot[self.n+3])
+        A[-2, -1] = basis_derivative2(T=knot[self.n+2:self.n+7], x=knot[self.n+3])
 
         # Step 4: place data point at the suitable place in vector b
         b[0] = coordinates[0]
@@ -86,20 +100,16 @@ class CubicBSpline():
 
         # Step 1: parameterize the curve
         t = self._parameterize()
-
+        print(t)
         # Step 2: set knot vector
-        t0 = t[0]
-        tn = t[-1]
-        knots = np.zeros(4 + 4 + self.num_points - 2)
-        knots[:4] = t0
-        knots[-4:] = tn
-        knots[4:-4] = t[1:-1]
+        knots = self._get_knots(t)
 
         # Step 3: build matrix and solve matrix with a linear system solver to find the required de Boor points
         deBoor_points = np.zeros((self.n + 3, self.ndim))
         for dim in range(self.ndim):
             A, b = self._build_linear_system(self.points[:, dim], knots)
             deBoor_points[:, dim] = solvers[solver_method](A, b)
+            print(A)
 
         return deBoor_points, knots
 
