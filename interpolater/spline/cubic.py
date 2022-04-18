@@ -42,15 +42,16 @@ class CubicBSpline():
     def _get_knots(self, t):
         t0 = t[0]
         tn = t[-1]
+        epsilon = 1e-3
         knots = np.zeros(4 + 4 + self.num_points - 2)
-        knots[:4] = [t0-3e-6, t0-2e-6, t0-1e-6, t0]
-        knots[-4:] = [tn, tn+1e-6, tn+2e-6, tn+3e-6]
+        knots[:4] = [t0-3*epsilon, t0-2*epsilon, t0-epsilon, t0]
+        knots[-4:] = [tn, tn+epsilon, tn+2*epsilon, tn+3*epsilon]
         knots[4:-4] = t[1:-1]
         i = 4
         while i < len(knots) - 4:
             j = 1
-            while i + j < len(knots) and knots[i + j] - knots[i] < 1e-6:
-                knots[i + j] = knots[i] + j * 1e-6
+            while i + j < len(knots) and knots[i + j] - knots[i] < epsilon:
+                knots[i + j] = knots[i] + j * epsilon
                 j += 1
             i = i + j
         return knots
@@ -100,7 +101,7 @@ class CubicBSpline():
 
         # Step 1: parameterize the curve
         t = self._parameterize()
-        print(t)
+
         # Step 2: set knot vector
         knots = self._get_knots(t)
 
@@ -109,7 +110,6 @@ class CubicBSpline():
         for dim in range(self.ndim):
             A, b = self._build_linear_system(self.points[:, dim], knots)
             deBoor_points[:, dim] = solvers[solver_method](A, b)
-            print(A)
 
         return deBoor_points, knots
 

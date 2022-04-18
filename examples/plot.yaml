@@ -1,2 +1,2 @@
-data_points: "../data/eg5"
-res: "log/eg5_output"
+data_points: "../data/eg4"
+res: "log/eg4_output"

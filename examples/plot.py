@@ -27,9 +27,9 @@ def visualize():
 
     # visualize interpolation result
     plt.figure(dpi=300)
-    plt.plot(X, Y, "k--", marker='s', markerfacecolor='r', label='control points')
-    plt.plot(data_points[:, 0], data_points[:, 1], ' ', marker='o', markerfacecolor='c', label='data points')
-    plt.plot(x, y, "g-", lw=2, label="Cubic B-Spline")
+    plt.plot(X, Y, "k--", marker='d', markerfacecolor='r', label='control points')
+    plt.plot(data_points[:, 0], data_points[:, 1], ' ', marker='*', markerfacecolor='c', label='data points')
+    plt.plot(x, y, "b-", lw=2, label="Cubic B-Spline")
     plt.grid(axis="y")
     plt.legend(["control points", "data points", "interpolation"])
     plt.xlabel("x")
